@@ -24,31 +24,31 @@ proc_data <- preprocess_diff_data(HTS_data         = HTS_data,
 # Apply methylation profiles
 # ------------------------------------------
 set.seed(seed)
-out_prof <- mpgex_diff_regr(formula       = formula,
-                            x             = proc_data$X,
-                            y             = proc_data$Y,
-                            model_name    = model_name,
-                            basis         = basis_prof,
-                            train_perc    = train_perc,
-                            opt_method    = opt_method,
-                            opt_itnmax    = opt_itnmax,
-                            is_parallel   = is_parallel,
-                            no_cores      = no_cores,
-                            is_summary    = is_summary)
+out_prof <- mpgex_differential_regr(formula       = formula,
+                                    x             = proc_data$X,
+                                    y             = proc_data$Y,
+                                    model_name    = model_name,
+                                    basis         = basis_prof,
+                                    train_perc    = train_perc,
+                                    opt_method    = opt_method,
+                                    opt_itnmax    = opt_itnmax,
+                                    is_parallel   = is_parallel,
+                                    no_cores      = no_cores,
+                                    is_summary    = is_summary)
 
 
 # ------------------------------------------
 # Apply mean methylation
 # ------------------------------------------
 set.seed(seed)
-out_mean <- mpgex_diff_regr(formula       = formula,
-                            x             = proc_data$X,
-                            y             = proc_data$Y,
-                            model_name    = model_name,
-                            basis         = basis_mean,
-                            train_perc    = train_perc,
-                            opt_method    = opt_method,
-                            opt_itnmax    = opt_itnmax,
-                            is_parallel   = is_parallel,
-                            no_cores      = no_cores,
-                            is_summary    = is_summary)
+out_mean <- mpgex_differential_regr(formula       = formula,
+                                    x             = proc_data$X,
+                                    y             = proc_data$Y,
+                                    model_name    = model_name,
+                                    basis         = basis_mean,
+                                    train_perc    = train_perc,
+                                    opt_method    = opt_method,
+                                    opt_itnmax    = opt_itnmax,
+                                    is_parallel   = is_parallel,
+                                    no_cores      = no_cores,
+                                    is_summary    = is_summary)
