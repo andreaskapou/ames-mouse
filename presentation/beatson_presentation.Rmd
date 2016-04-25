@@ -1,0 +1,250 @@
+---
+title: "Beatson Presentation"
+author: "C.A. Kapourani"
+date: "22 February 2016"
+output: html_document
+---
+
+***
+***
+
+## Predicting gene expression level from DNA methylation profiles
+
+The main approach is to predict gene expression from the mean methylation level of the corresponding promoter region. Our approach is to fita methylation profile for each promoter region and then predict gene expression from the shape of methylation profiles. This can be thought as extracting more features from DNA methylation data and using them to predict transcription abundance. However, this approach is computationally more expensive since for each promoter we need to maximize the following quantity:
+
+$$ p(\mathbf{y}_{i}|\mathbf{f}_{i}) = \prod_{l=1}^{L} p(y_{il}|f_{il}) = \prod_{l=1}^{L} \binom{t_{il}}{m_{il}} \Phi(f_{il})^{m_{il}} (1 - \Phi(f_{il})\big)^{t_{il} - m_{il}} $$
+
+The __f__ are _basis functions_ which are squashed through the probit transformation in order to lie in the [0, 1] interval. Currently, the [polynomial](https://en.wikipedia.org/wiki/Polynomial_basis) and [rbf](https://en.wikipedia.org/wiki/Radial_basis_function) basis functions are implemented.
+
+After learning the methylation profiles for each region, we use a regression model to predict gene expression. The default is to use the [SVM regression](http://kernelsvm.tripod.com/) model, but other approaches are implemented such as [Random Forests](https://en.wikipedia.org/wiki/Random_forest) and [Multivariate adaptive regression splines](https://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines).
+
+***
+
+## Some initial results on the ames mouse data
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/load_results.R")
+```
+
+We model the methylation profiles using 9 RBF kernels (i.e. basis functions). The learned parameters for these basis functions will be our extracted features that we will use to predict gene expression levels. A region of 10kb is taken for the promoter regions, which are centred around the TSS, so 5kb upstream and 5kb downstream of TSS. The chromosomes _chrLambda_ and _chrM_ where discarded from further analysis. Reads with less than 6 coverage were also discarded and promoter regions should contains at least 12 CpGs so as to be considered for further analysis. The gene expression data are in FPKM. We _log2_ transform the FPKM values to reduce variation and to avoid the $log2(0)$ issue, $\alpha = 0.1$ was added to all the counts. Finally, we remove genes that have expression levels above 600, considering them as noise.
+
+```{r, warning=FALSE, fig.align='center'}
+# Plot some learned methylation profiles for DF Young mouse
+t = 1569
+# Methylation profile using 9 RBFs
+plot(df_young_out_prof$basis, df_young_obs[[t]], df_young_out_prof$W_opt[t,])
+
+# Mean methylation level
+plot(df_young_out_mean$basis, df_young_obs[[t]], df_young_out_mean$W_opt[t,])
+
+
+# Plot some learned methylation profiles for DF Young mouse
+t = 1533
+# Methylation profile using 9 RBFs
+plot(df_young_out_prof$basis, df_young_obs[[t]], df_young_out_prof$W_opt[t,])
+
+t = 2133
+# Methylation profile using 9 RBFs
+plot(df_young_out_prof$basis, df_young_obs[[t]], df_young_out_prof$W_opt[t,])
+```
+
+As we can observe the latent basis functions can capture the rich patterns present in the WGBS data. Our argument is that there is a functional role for the shape of methylation profiles.
+
+*** 
+
+Using the learned profile parameters as input features, we train an SVM regression model using 70% of the data as training data, and the rest 30% as test data. So the training data consist of 10 input features __w__ and the corresponding gene expression level __y__ for each gene promoter region. Below we can see how well we can predict gene expression levels from DNA methylation patterns in the test data. The x-axis corresponds to the measured gene expression and the y-axis to the predicted gene expression levels. __R__ denotes the Pearson's correlation coefficient.  
+
+### DF Young Results
+```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Prediction using 9 RBFs as input features
+plot_scatt_regr_test(df_young_out_prof, main_lab = "DF Young Methylation Profile", is_margins = TRUE)
+
+# Prediction using only the mean methylation level as input feature
+plot_scatt_regr_test(df_young_out_mean, main_lab = "DF Young Mean Methylation", is_margins = TRUE)
+```
+
+***
+
+### DF Old Results
+```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Prediction using 9 RBFs as input features
+plot_scatt_regr_test(df_old_out_prof, main_lab = "DF Old Methylation Profile", is_margins = TRUE)
+```
+
+
+***
+
+### N Young Results
+```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Prediction using 9 RBFs as input features
+plot_scatt_regr_test(N_young_out_prof, main_lab = "N Young Methylation Profile", is_margins = TRUE)
+```
+
+
+***
+
+### N Old Results
+```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Prediction using 9 RBFs as input features
+plot_scatt_regr_test(N_old_out_prof, main_lab = "N Old Methylation Profile", is_margins = TRUE)
+```
+
+***
+
+## Predicting gene expresion levels from different mouse models
+Our next step is to ask if methylation patterns are global across different cell lines and different mouse models. That is, learning the methylation profiles (i.e. extract higher order methylation features) for one mouse model, e.g. DF Old, can we use them to predict gene expression levels for a different mouse model, e.g. N Old?
+
+The process is the following:
+* Learn methylation profiles for each mouse model.
+* Train a regression model on these methylation profiles for each mouse model, exactly as we did in the previous study.
+* Now we will have 4 regression models, each learned on a specific mouse model and its corresponding methylation profiles.
+* We can now use a regression model from a specific mouse model, e.g. DF Old, and try to predict the gene expression levels of another mouse model, e.g. N Old.
+
+If there are global proerties of methylation patterns, then we expect similar correlation values to what we found on the previous section.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/predict_different_mouse_models.R")
+```
+
+```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Predict N Old expression from DF Old methylation patterns
+plot_scatt_regr_test(out_DO_to_NO, main_lab = "Predict expression of N Old from DF Old mouse model", is_margins = TRUE)
+```
+
+***
+
+Below are the results for all combinations of mouse models using the Pearson Correlation Coefficient R for assessing model performance. 
+
+Mouse Model | DF Old | DF Young | N Old | N Young
+----------  | ------ | -------- | ----- | --------
+DF Old      | --     | 0.417    | 0.619 | 0.614
+DF Young    | 0.407  | --       | 0.408 | 0.406
+N Old       | 0.596  | 0.445    | --    | 0.614
+N Young     | 0.597  | 0.46     | 0.619 | --
+
+
+***
+***
+
+## Clustering methylation profiles
+To cluster methylation profiles we consider a [mixture modelling](https://en.wikipedia.org/wiki/Mixture_model) approach . We assume that the methylation profiles can be partitioned into at most K clusters, and each cluster $k$ can be modelled separately using the binomial distributed probit regression function as our observation model, which we introduced in the beginning of this document.
+
+To estimate the model parameters $\mathbf{\Theta} = (\pi_{1}, \ldots , \pi_{k}, \mathbf{w}_{1}, \ldots, \mathbf{w}_{k})$, the [Expectation Maximization](https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm) (EM) algorithm is considered. EM is a general iterative algorithm for computing maximum likelihood estimates when there are missing or latent variables, as in the case of mixture models. EM alternates between inferring the latent values given the parameters (E-step), and optimizing the parameters given the filled in data (M-step). Using the proposed observation model, direct optimization of the likelihood w.r.t parameters $\mathbf{w}_{k}$ is intractable, thus, we have to resort to numerical optimization strategies, such as [Conjugate Gradient](https://en.wikipedia.org/wiki/Conjugate_gradient_method) algorithm.
+
+***
+
+The results on the ames-mouse data after clustering the similar methylation profiles are shown in the figures below for each mouse model separately.
+
+### Clustering methylation profiles using K = 5
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/load_5_cluster_results.R")
+```
+
+```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Plot methylation profiles for K = 5 clusters for DF Old mouse model
+plot_cluster_prof(df_old_model, df_old_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_old_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for DF Young mouse model
+plot_cluster_prof(df_young_model, df_young_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_young_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for N Old mouse model
+plot_cluster_prof(N_old_model, N_old_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_old_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for N Young mouse model
+plot_cluster_prof(N_young_model, N_young_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_young_expr, FALSE)
+```
+
+***
+
+### Clustering methylation profiles using K = 7
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/load_7_cluster_results.R")
+```
+
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Plot methylation profiles for K = 7 clusters for DF Old mouse model
+plot_cluster_prof(df_old_model, df_old_basis, TRUE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_old_expr, TRUE)
+
+# Plot methylation profiles for K = 7 clusters for DF Young mouse model
+plot_cluster_prof(df_young_model, df_young_basis, TRUE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_young_expr, TRUE)
+
+# Plot methylation profiles for K = 7 clusters for N Old mouse model
+plot_cluster_prof(N_old_model, N_old_basis, TRUE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_old_expr, TRUE)
+
+# Plot methylation profiles for K = 7 clusters for N Young mouse model
+plot_cluster_prof(N_young_model, N_young_basis, TRUE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_young_expr, TRUE)
+```
+
+***
+
+### Clustering methylation profiles using 3 RBFs
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/load_3_RBF_cluster_results.R")
+```
+
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Plot methylation profiles for K = 5 clusters for DF Old mouse model
+plot_cluster_prof(df_old_model, df_old_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_old_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for DF Young mouse model
+plot_cluster_prof(df_young_model, df_young_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_young_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for N Old mouse model
+plot_cluster_prof(N_old_model, N_old_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_old_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for N Young mouse model
+plot_cluster_prof(N_young_model, N_young_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_young_expr, FALSE)
+```
+
+
+***
+
+### Clustering methylation profiles using 4000 bp region
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/load_small_region_cluster_results.R")
+```
+
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
+# Plot methylation profiles for K = 5 clusters for DF Old mouse model
+plot_cluster_prof(df_old_model, df_old_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_old_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for DF Young mouse model
+plot_cluster_prof(df_young_model, df_young_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(df_young_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for N Old mouse model
+plot_cluster_prof(N_old_model, N_old_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_old_expr, FALSE)
+
+# Plot methylation profiles for K = 5 clusters for N Young mouse model
+plot_cluster_prof(N_young_model, N_young_basis, FALSE)
+# Corresponding gene expression levels for each cluster K
+plot_cluster_box(N_young_expr, FALSE)
+```
