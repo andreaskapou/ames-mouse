@@ -33,5 +33,5 @@ source("bpr_cluster.R")
 # -----------------------------------------
 filename <- paste0("../files/cluster_df_old_", 
                    format(Sys.time(), "%a%b%d%H%M"),
-                   ".Rdatasets/BEATSON")
+                   ".RData")
 save(HTS_data, proc_data, bpr_model, file = filename)
