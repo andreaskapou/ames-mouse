@@ -7,11 +7,11 @@
 # -------------------------------------------------
 # Initialize parameters for processing HTS data
 # -------------------------------------------------
-upstream    <- -5000
-downstream  <- 5000
-cpg_density <- 12
-sd_thresh   <- 7e-02
-min_bs_cov  <- 6
+upstream    <- -7000
+downstream  <- 7000
+cpg_density <- 15
+sd_thresh   <- 10e-02
+min_bs_cov  <- 4
 chr_discarded <- c("chrLambda", "chrM")
 ignore_strand <- TRUE
 
@@ -31,7 +31,7 @@ train_perc  <- 0.7
 opt_method  <- "CG"
 opt_itnmax  <- 50
 is_parallel <- TRUE
-no_cores    <- 3
+no_cores    <- 10
 is_summary  <- TRUE
 
 fit_feature   <- "RMSE"

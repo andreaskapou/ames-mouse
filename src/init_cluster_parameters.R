@@ -7,11 +7,11 @@
 # -------------------------------------------------
 # Initialize parameters for processing HTS data
 # -------------------------------------------------
-upstream    <- -5000
-downstream  <- 5000
-cpg_density <- 12
-sd_thresh   <- 7e-02
-min_bs_cov  <- 6
+upstream    <- -7000
+downstream  <- 7000
+cpg_density <- 15
+sd_thresh   <- 10e-02
+min_bs_cov  <- 4
 chr_discarded <- c("chrLambda", "chrM")
 ignore_strand <- TRUE
 
@@ -31,11 +31,11 @@ pi_k            <- NULL
 em_max_iter     <- 20
 epsilon_conv    <- 1e-4
 opt_method      <- "CG"
-opt_itnmax      <- 50
-init_opt_itnmax <- 100
+opt_itnmax      <- 40
+init_opt_itnmax <- 80
 is_parallel     <- TRUE
-no_cores        <- 3
+no_cores        <- 10
 is_verbose      <- TRUE
 
 
-basis <- rbf.object(M = 3)
+basis <- rbf.object(M = 4)
