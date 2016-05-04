@@ -38,7 +38,7 @@ for (i in 1:length(bs_files)){
                      chromEnd    = bs_data$start + 1, 
                      name        = rep(1, length(bs_data$chr)), 
                      score       = bs_data$meth_reads + bs_data$unmeth_reads,
-                     strand      = rep(1, length(bs_data$chr)),
+                     strand      = rep("*", length(bs_data$chr)),
                      thickStart  = rep(1, length(bs_data$chr)),
                      thickEnd    = rep(1, length(bs_data$chr)), 
                      itemRgb     = rep(1, length(bs_data$chr)), 
