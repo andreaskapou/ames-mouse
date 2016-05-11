@@ -7,8 +7,8 @@
 # -------------------------------------------------
 # Initialize parameters for processing HTS data
 # -------------------------------------------------
-upstream    <- -7000
-downstream  <- 7000
+upstream    <- -2500
+downstream  <- 2500
 cpg_density <- 15
 sd_thresh   <- 10e-02
 min_bs_cov  <- 4
@@ -31,10 +31,10 @@ pi_k            <- NULL
 em_max_iter     <- 20
 epsilon_conv    <- 1e-4
 opt_method      <- "CG"
-opt_itnmax      <- 40
-init_opt_itnmax <- 80
+opt_itnmax      <- 30
+init_opt_itnmax <- 70
 is_parallel     <- TRUE
-no_cores        <- 10
+no_cores        <- 5
 is_verbose      <- TRUE
 
 
