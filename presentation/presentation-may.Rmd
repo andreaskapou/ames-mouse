@@ -1,0 +1,200 @@
+---
+title: "Beatson Updated Results"
+author: "C.A. Kapourani"
+date: "11 May 2016"
+output: html_document
+---
+
+***
+
+## Predicting gene expression level from DNA methylation profiles
+
+The main approach is to predict gene expression from the mean methylation level of the corresponding promoter region. Our approach is to fita methylation profile for each promoter region and then predict gene expression from the shape of methylation profiles. This can be thought as extracting more features from DNA methylation data and using them to predict transcription abundance. However, this approach is computationally more expensive since for each promoter we need to maximize the following quantity:
+
+$$ p(\mathbf{y}_{i}|\mathbf{f}_{i}) = \prod_{l=1}^{L} p(y_{il}|f_{il}) = \prod_{l=1}^{L} \binom{t_{il}}{m_{il}} \Phi(f_{il})^{m_{il}} (1 - \Phi(f_{il})\big)^{t_{il} - m_{il}} $$
+
+The __f__ are _basis functions_ which are squashed through the probit transformation in order to lie in the [0, 1] interval. Currently, [rbf](https://en.wikipedia.org/wiki/Radial_basis_function) basis functions are implemented.
+
+After learning the methylation profiles for each region, we use a regression model to predict gene expression. The default is to use the [SVM regression](http://kernelsvm.tripod.com/) model, but other approaches are implemented such as [Random Forests](https://en.wikipedia.org/wiki/Random_forest) and [Multivariate adaptive regression splines](https://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines).
+
+***
+
+### Some initial results on the ames mouse data
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(ggplot2)
+library(cowplot)
+R.utils::sourceDirectory("../src/lib", modifiedOnly=FALSE)
+source("../src/load_corr_ames_data.R")
+```
+
+We model the methylation profiles using 9 RBF kernels (i.e. basis functions). The learned parameters for these basis functions will be our extracted features that we will use to predict gene expression levels. A region of 10kb is taken for the promoter regions, which are centred around the TSS, so 5kb upstream and 5kb downstream of TSS. The chromosomes _chrLambda_ and _chrM_ where discarded from further analysis. Reads with less than 6 coverage were also discarded and promoter regions should contains at least 12 CpGs so as to be considered for further analysis. The gene expression data are in FPKM. We _log2_ transform the FPKM values to reduce variation and to avoid the $log2(0)$ issue, $\alpha = 0.1$ was added to all the counts. Finally, we remove genes that have expression levels above 600, considering them as noise.
+
+```{r, warning=FALSE, fig.align='center'}
+# Plot some learned methylation profiles for DF Young mouse
+t = 1569
+gene_name <- df_young_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = df_young_X, 
+                     fit_prof = df_young_out_prof, 
+                     fit_mean = df_young_out_mean, 
+                     title = paste0("Gene ", df_young_genes$gene_name[t]))
+
+# Plot some learned methylation profiles for DF Young mouse
+t = 1533
+gene_name <- df_young_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = df_young_X, 
+                     fit_prof = df_young_out_prof, 
+                     fit_mean = df_young_out_mean, 
+                     title = paste0("Gene ", df_young_genes$gene_name[t]))
+
+t = 2133
+gene_name <- df_young_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = df_young_X, 
+                     fit_prof = df_young_out_prof, 
+                     fit_mean = df_young_out_mean, 
+                     title = paste0("Gene ", df_young_genes$gene_name[t]))
+
+# Methylation profiles for the Rem1 gene
+t = 11428
+gene_name <- df_young_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = df_young_X, 
+                     fit_prof = df_young_out_prof, 
+                     fit_mean = df_young_out_mean, 
+                     title = paste0("Gene ", df_young_genes$gene_name[t]))
+
+t = 11433
+gene_name <- df_old_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = df_old_X, 
+                     fit_prof = df_old_out_prof, 
+                     fit_mean = df_old_out_mean, 
+                     title = paste0("Gene ", df_old_genes$gene_name[t]))
+
+t = 11455
+gene_name <- N_young_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = N_young_X, 
+                     fit_prof = N_young_out_prof, 
+                     fit_mean = N_young_out_mean, 
+                     title = paste0("Gene ", N_young_genes$gene_name[t]))
+
+t = 11474
+gene_name <- N_old_genes$gene_name[t]
+# Methylation profile using 9 RBFs
+plot_fitted_profiles(region = t, 
+                     X = N_old_X, 
+                     fit_prof = N_old_out_prof, 
+                     fit_mean = N_old_out_mean, 
+                     title = paste0("Gene ", N_old_genes$gene_name[t]))
+```
+
+As we can observe the latent basis functions can capture the rich patterns present in the WGBS data. We argue that there is a functional role for the shape of methylation profiles.
+
+*** 
+
+Using the learned profile parameters as input features, we train an SVM regression model using 70% of the data as training data, and the rest 30% as test data. So the training data consist of 10 input features __w__ and the corresponding gene expression level __y__ for each gene promoter region. Below we can see how well we can predict gene expression levels from DNA methylation patterns in the test data. The x-axis corresponds to the measured gene expression and the y-axis to the predicted gene expression levels. __R__ denotes the Pearson's correlation coefficient.  
+
+### DF Young Results
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+plot_df_young_prof <- ggplot_scatt_regr_test2(df_young_out_prof, main_lab = "DF Young Methylation Profile", is_margins = TRUE)
+plot_df_young_mean <- ggplot_scatt_regr_test2(df_young_out_mean, main_lab = "DF Young Mean Methylation", is_margins = TRUE)
+
+# (cor.test(as.vector(df_young_out_prof$test_pred), df_young_out_prof$test$y, alternative = "greater")$p.value)
+# (cor.test(as.vector(df_young_out_mean$test_pred), df_young_out_mean$test$y, alternative = "greater")$p.value)
+
+plot_grid(plot_df_young_prof, plot_df_young_mean, labels = c("A", "B"), 
+                       label_size = 20, ncol = 2, nrow = 1)
+```
+
+### DF Old Results
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+plot_df_old_prof <- ggplot_scatt_regr_test2(df_old_out_prof, main_lab = "DF Old Methylation Profile", is_margins = TRUE)
+plot_df_old_mean <- ggplot_scatt_regr_test2(df_old_out_mean, main_lab = "DF Old Mean Methylation", is_margins = TRUE)
+
+plot_grid(plot_df_old_prof, plot_df_old_mean, labels = c("A", "B"), 
+                       label_size = 20, ncol = 2, nrow = 1)
+```
+
+### N Young Results
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+plot_N_young_prof <- ggplot_scatt_regr_test2(N_young_out_prof, main_lab = "N Young Methylation Profile", is_margins = TRUE)
+plot_N_young_mean <- ggplot_scatt_regr_test2(N_young_out_mean, main_lab = "N Young Mean Methylation", is_margins = TRUE)
+
+plot_grid(plot_N_young_prof, plot_N_young_mean, labels = c("A", "B"), 
+                       label_size = 20, ncol = 2, nrow = 1)
+```
+
+### N Old Results
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+plot_N_old_prof <- ggplot_scatt_regr_test2(N_old_out_prof, main_lab = "N Old Methylation Profile", is_margins = TRUE)
+plot_N_old_mean <- ggplot_scatt_regr_test2(N_old_out_mean, main_lab = "N Old Mean Methylation", is_margins = TRUE)
+
+plot_grid(plot_N_old_prof, plot_N_old_mean, labels = c("A", "B"), 
+                       label_size = 20, ncol = 1, nrow = 2)
+```
+
+
+## Predicting gene expresion levels from different mouse models
+Our next step is to ask if methylation patterns are global across different cell lines and different mouse models. That is, learning the methylation profiles (i.e. extract higher order methylation features) for one mouse model, e.g. DF Old, can we use them to predict gene expression levels for a different mouse model, e.g. N Old?
+
+The process is the following:
+
+ * Learn methylation profiles for each mouse model.
+ * Train a regression model on these methylation profiles for each mouse model, exactly as we did in the previous study.
+ * Now we will have 4 regression models, each learned on a specific mouse model and its corresponding methylation profiles.
+ * We can now use a regression model from a specific mouse model, e.g. DF Old, and try to predict the gene expression levels of another mouse model, e.g. N Old.
+
+If there are global proerties of methylation patterns, then we expect similar correlation values to what we found on the previous section.
+
+### Using methylation profiles
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/predict_across_mouse_models.R")
+# ---------- Make plots -------------------------------------
+out_DO_to_DY$test_errors <- DO_predict_DY$test_errors
+ggplot_scatt_across_cell_line(output = out_DO_to_DY, 
+                              main_lab = expression(Profile~DO %->% DY), 
+                              is_margins = TRUE)
+
+out_NO_to_DO$test_errors <- NO_predict_DO$test_errors
+ggplot_scatt_across_cell_line(output = out_NO_to_DO, 
+                              main_lab = expression(Profile~NO %->% DO), 
+                              is_margins = TRUE)
+```
+
+Confusion matrix of predictions from one mouse model to the other mouse models when using the methylation profiles as input features in the SVM regression model.
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+plot_ames_conf_corr_matrix(df_old_out_prof, out_DO_to_DY, out_DO_to_NO, out_DO_to_NY,  
+                           df_young_out_prof, out_DY_to_DO, out_DY_to_NO, out_DY_to_NY,
+                           N_old_out_prof, out_NO_to_DY, out_NO_to_DO, out_NO_to_NY, 
+                           N_young_out_prof, out_NY_to_DY, out_NY_to_DO, out_NY_to_NO, 
+                           title_lab = "Methylation Profiles Correlation")
+```
+
+
+### Using Mean methylation profiles
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+source("../src/predict_mean_across_mouse_models.R")
+# ---------- Make plots -------------------------------------
+out_DO_to_DY$test_errors <- DO_predict_DY$test_errors
+ggplot_scatt_across_cell_line(output = out_DO_to_DY, 
+                              main_lab = expression(Meab~DO %->% DY), 
+                              is_margins = TRUE)
+```
+
+Confusion matrix of predictions from one mouse model to the other mouse models when using the methylation profiles as input features in the SVM regression model.
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+plot_ames_conf_corr_matrix(df_old_out_mean, out_DO_to_DY, out_DO_to_NO, out_DO_to_NY,  
+                           df_young_out_mean, out_DY_to_DO, out_DY_to_NO, out_DY_to_NY,
+                           N_old_out_mean, out_NO_to_DY, out_NO_to_DO, out_NO_to_NY, 
+                           N_young_out_mean, out_NY_to_DY, out_NY_to_DO, out_NY_to_NO, 
+                           title_lab = "Mean Methylation Correlation")
+```
