@@ -31,7 +31,7 @@ source("bpr_cluster.R")
 # -----------------------------------------
 # Store the results
 # -----------------------------------------
-filename <- paste0("../files/cluster_df_young_", upstream, "_",
+filename <- paste0("../files/cluster_df_young_", downstream, "_",
                    format(Sys.time(), "%a%b%d%H%M"),
                    ".RData")
 save(HTS_data, proc_data, bpr_model, file = filename)

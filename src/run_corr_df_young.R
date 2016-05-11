@@ -31,7 +31,7 @@ source("bpr_regression.R")
 # --------------------------------------
 # Store the results
 # --------------------------------------
-filename <- paste0("../files/corr_df_young_", upstream, "_",
+filename <- paste0("../files/corr_df_young_", downstream, "_",
                    format(Sys.time(), "%a%b%d%H%M"),
                    ".RData")
 save(HTS_data, proc_data, out_prof, out_mean, file = filename)
