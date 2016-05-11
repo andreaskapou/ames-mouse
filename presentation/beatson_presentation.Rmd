@@ -51,7 +51,7 @@ As we can observe the latent basis functions can capture the rich patterns prese
 
 *** 
 
-Using the learned profile parameters as input features, we train an SVM regression model using 70% of the data as training data, and the rest 30% as test data. So the training data consist of 10 input features __w__ and the corresponding gene expression level __y__ for each gene promoter region. Below we can see how well we can predict gene expression levels from DNA methylation patterns in the test data. The x-axis corresponds to the measured gene expression and the y-axis to the predicted gene expression levels. __R__ denotes the Pearson's correlation coefficient.  
+Using the learned profile parameters as input features, we train an SVM regression model using 70% of the data as training data, and the rest 30% as test data. So the training data consist of 10 input features __w__ and the corresponding gene expression level __y__ for each gene promoter region. Below we can see how well we can predict gene expression levels from DNA methylation patterns in the test data. The x-axis corresponds to the measured gene expression and the y-axis to the predicted gene expression levels. __r__ denotes the Pearson's correlation coefficient.  
 
 ### DF Young Results
 ```{r, warning=FALSE, fig.width=7, fig.height=7, fig.align='center'}
