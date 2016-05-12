@@ -87,5 +87,5 @@ save(bs_files,
      wgbs,
      prom_regions,
      overlaps,
-     MMD_data, file = paste0("../datasets/BEATSON/M3D_", downstream, ".RData")
+     MMD_data, file = paste0("../datasets/BEATSON/M3D_", downstream, ".RData"))
 
