@@ -7,8 +7,8 @@
 # -------------------------------------------------
 # Initialize parameters for processing HTS data
 # -------------------------------------------------
-upstream    <- -2500
-downstream  <- 2500
+upstream    <- -5000
+downstream  <- 5000
 cpg_density <- 15
 sd_thresh   <- 10e-02
 min_bs_cov  <- 4
