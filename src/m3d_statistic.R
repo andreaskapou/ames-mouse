@@ -64,9 +64,10 @@ bs_data  <- preprocess_bs_encode_haib(files = bs_files[1])
 # Read RNA data
 rna_data <- read_rna_beatson(file = rna_files, is_GRanges = TRUE)
 # Create promooter regions
+downstream <- 2500
 prom_regions <- create_prom_region(annot_data = rna_data, 
-                                   upstream   = -5000, 
-                                   downstream = 5000)
+                                   upstream   = -downstream, 
+                                   downstream = downstream)
 # Create methylation regions
 methyl_region <- create_methyl_region(bs_data       = bs_data,
                                       prom_region   = prom_regions,
@@ -86,5 +87,5 @@ save(bs_files,
      wgbs,
      prom_regions,
      overlaps,
-     MMD_data, file = "../datasets/BEATSON/M3D.RData")
+     MMD_data, file = paste0("../datasets/BEATSON/M3D_", downstream, ".RData")
 
