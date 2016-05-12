@@ -64,7 +64,7 @@ bs_data  <- preprocess_bs_encode_haib(files = bs_files[1])
 # Read RNA data
 rna_data <- read_rna_beatson(file = rna_files, is_GRanges = TRUE)
 # Create promooter regions
-downstream <- 2500
+downstream <- 7000
 prom_regions <- create_prom_region(annot_data = rna_data, 
                                    upstream   = -downstream, 
                                    downstream = downstream)
