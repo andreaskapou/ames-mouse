@@ -22,7 +22,7 @@ bs_files  <- c("../datasets/BEATSON/BS-Seq/processed/1L_df_old.pool.bed",
 rna_files  <- "../datasets/BEATSON/RNA-Seq/processed/RNA_Seq_FPKM_X1L_df_old.bed"
 
 ##----------------- Initialize -----------------------
-downstream <- 5000
+downstream <- 2500
 # Read BS data
 bs_data  <- preprocess_bs_seq(files = bs_files[1],
                               file_format = "encode_rrbs")
