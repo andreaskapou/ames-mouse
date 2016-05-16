@@ -60,23 +60,23 @@ prom_regions <- prom_regions[methyl_region$prom_ind]
 
 
 
-# ##------------------------------------------------------------------------------
-# # Create annotation data for experiment DY-NY
-# ##------------------------------------------------------------------------------
-# group_dy_ny <- factor(c("DF_Young", "DF_Young", 
-#                         "N_Young", "N_Young"))
-# samples_dy_ny <- c("DF_Young1", "DF_Young2",
-#                    "N_Young1", "N_Young2")
-# colData_dy_ny <- DataFrame(group_dy_ny, row.names= samples_dy_ny)
-# 
-# # Read ENCODE data and store them in the required format
-# wgbs_dy_ny <- readENCODEdata(bs_files[5:8], colData_dy_ny)
-# 
-# # Find overlaps between promoter regions and WGBS data
-# overlaps_dy_ny <- findOverlaps(prom_regions, rowRanges(wgbs_dy_ny))
-# 
-# # Perform M3D statistic
-# MMD_data_dy_ny <- M3D_Wrapper_lite(wgbs_dy_ny, overlaps_dy_ny)
+##------------------------------------------------------------------------------
+# Create annotation data for experiment DY-NY
+##------------------------------------------------------------------------------
+group_dy_ny <- factor(c("DF_Young", "DF_Young", 
+                        "N_Young", "N_Young"))
+samples_dy_ny <- c("DF_Young1", "DF_Young2",
+                   "N_Young1", "N_Young2")
+colData_dy_ny <- DataFrame(group_dy_ny, row.names= samples_dy_ny)
+
+# Read ENCODE data and store them in the required format
+wgbs_dy_ny <- readENCODEdata(bs_files[5:8], colData_dy_ny)
+
+# Find overlaps between promoter regions and WGBS data
+overlaps_dy_ny <- findOverlaps(prom_regions, rowRanges(wgbs_dy_ny))
+
+# Perform M3D statistic
+MMD_data_dy_ny <- M3D_Wrapper_lite(wgbs_dy_ny, overlaps_dy_ny)
 
 
 
@@ -100,23 +100,23 @@ prom_regions <- prom_regions[methyl_region$prom_ind]
 
 
 
-##------------------------------------------------------------------------------
-# Create annotation data for experiment NO-NY
-##------------------------------------------------------------------------------
-group_no_ny <- factor(c("N_Old", "N_Old", 
-                        "N_Young", "N_Young"))
-samples_no_ny <- c("N_Old1", "N_Old2",
-                   "N_Young1", "N_Young2")
-colData_no_ny <- DataFrame(group_no_ny, row.names= samples_no_ny)
-
-# Read ENCODE data and store them in the required format
-wgbs_no_ny <- readENCODEdata(c(bs_files[3:4], bs_files[7:8]), colData_no_ny)
-
-# Find overlaps between promoter regions and WGBS data
-overlaps_no_ny <- findOverlaps(prom_regions, rowRanges(wgbs_no_ny))
-
-# Perform M3D statistic
-MMD_data_no_ny <- M3D_Wrapper_lite(wgbs_no_ny, overlaps_no_ny)
+# ##------------------------------------------------------------------------------
+# # Create annotation data for experiment NO-NY
+# ##------------------------------------------------------------------------------
+# group_no_ny <- factor(c("N_Old", "N_Old", 
+#                         "N_Young", "N_Young"))
+# samples_no_ny <- c("N_Old1", "N_Old2",
+#                    "N_Young1", "N_Young2")
+# colData_no_ny <- DataFrame(group_no_ny, row.names= samples_no_ny)
+# 
+# # Read ENCODE data and store them in the required format
+# wgbs_no_ny <- readENCODEdata(c(bs_files[3:4], bs_files[7:8]), colData_no_ny)
+# 
+# # Find overlaps between promoter regions and WGBS data
+# overlaps_no_ny <- findOverlaps(prom_regions, rowRanges(wgbs_no_ny))
+# 
+# # Perform M3D statistic
+# MMD_data_no_ny <- M3D_Wrapper_lite(wgbs_no_ny, overlaps_no_ny)
 
 
 
@@ -126,17 +126,17 @@ save(bs_files,
 #      wgbs_do_no,
 #      overlaps_do_no,
 #      MMD_data_do_no, 
-#      colData_dy_ny,
-#      wgbs_dy_ny,
-#      overlaps_dy_ny,
-#      MMD_data_dy_ny,
+     colData_dy_ny,
+     wgbs_dy_ny,
+     overlaps_dy_ny,
+     MMD_data_dy_ny,
 #      colData_dy_do,
 #      wgbs_dy_do,
 #      overlaps_dy_do,
 #      MMD_data_dy_do,
-     colData_no_ny,
-     wgbs_no_ny,
-     overlaps_no_ny,
-     MMD_data_no_ny,
-     file = paste0("../datasets/BEATSON/M3D_", downstream, "_NO_NY.RData"))
+#      colData_no_ny,
+#      wgbs_no_ny,
+#      overlaps_no_ny,
+#      MMD_data_no_ny,
+     file = paste0("../datasets/BEATSON/M3D_", downstream, "_DY_NY.RData"))
 
