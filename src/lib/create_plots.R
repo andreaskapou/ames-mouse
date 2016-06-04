@@ -439,9 +439,9 @@ plot_cluster_prof <- function(model, basis, add_clust = FALSE, main_lab = "Clust
 
 
 
-ggplot_cluster_prof <- function(df, main_lab = "Clustered methylation profiles"){
+ggplot_cluster_prof <- function(df, main_lab = "Clustered methylation profiles", label = c("-7kb", "TSS", "7kb")){
   prof_plot <- ggplot(df, aes(x = xs, y = y, group = cluster)) + 
-    geom_line(aes(colour = cluster), size = 1.1) + 
+    geom_line(aes(colour = cluster), size = 0.8) + 
     scale_colour_manual(values=c("firebrick", "cornflowerblue", "coral", 
                                  "darkolivegreen4", "#E69F00"), 
                         name="Cluster",
@@ -453,19 +453,19 @@ ggplot_cluster_prof <- function(df, main_lab = "Clustered methylation profiles")
          y = "methylation level") +
     ggtitle(main_lab) + 
     scale_y_continuous(breaks = seq(0, 1, by = 0.2)) + 
-    scale_x_continuous(breaks=c(-1, 0, 1), labels = c("-7kb", "TSS", "7kb")) + 
-    theme(axis.text.x = element_text(size = 14), #element_text(size=17, angle=90, vjust = 0.4), 
-          axis.text.y = element_text(size = 14),
+    scale_x_continuous(breaks=c(-0.85, 0, 0.85), labels = label) + 
+    theme(axis.text.x = element_text(size = 10), #element_text(size=17, angle=90, vjust = 0.4), 
+          axis.text.y = element_text(size = 10),
           #axis.title.x = element_text(color="black", size=16),
-          axis.title.y = element_text(color="black", size=17),
-          plot.title = element_text(face="bold", color = "black", size=19),
+          axis.title.y = element_text(color="black", size=11),
+          plot.title = element_text(face="bold", color = "black", size=14),
           #axis.text = element_text(size = 16),
           panel.grid.major = element_blank(), 
           #panel.grid.minor = element_blank(),
           panel.border = element_rect(colour = "black", size = 0.5),
-          legend.title = element_text(size = 15),
-          legend.text = element_text(size = 14),
-          text = element_text(size=18))
+          legend.title = element_text(size = 11),
+          legend.text = element_text(size = 11),
+          text = element_text(size=11))
   
   return(prof_plot)
 }
@@ -541,18 +541,18 @@ ggplot_cluster_expr2 <- function(df, main_lab = "Gene expression levels"){
     ggtitle(main_lab) +
     stat_summary(fun.y = my_min,
                  aes(label = paste0("", label)), 
-                 geom='text', lwd=5, col='black', cex=5) +
+                 geom='text', lwd=3, col='black', cex=1.5) +
     scale_y_continuous(breaks = seq(-4.5, 8.5, by = 2)) + 
     #scale_x_discrete(labels = df$label) +
     theme(axis.text.x = element_blank(), #element_text(size=17, angle=90, vjust = 0.4), 
-          axis.text.y = element_text(size = 13), 
-          plot.title = element_text(face="bold", color = "black", size=19),
+          axis.text.y = element_text(size = 10), 
+          plot.title = element_text(face="bold", color = "black", size=14),
           panel.grid.major = element_blank(), 
           #panel.grid.minor = element_blank(),
-          axis.title.y = element_text(color="black", size = 17),
-          legend.title = element_text(size = 15),
-          legend.text = element_text(size = 14),
-          text = element_text(size=18))
+          axis.title.y = element_text(color="black", size = 11),
+          legend.title = element_text(size = 11),
+          legend.text = element_text(size = 11),
+          text = element_text(size=11))
 }
 
 
@@ -588,4 +588,32 @@ create_quad_venn2 <- function(n1, n2, n3, n4, filename = "venn_diagram.png"){
     cat.cex = 2.5,
     cat.fontfamily = "serif"
   )
+}
+
+
+
+plot_dmr_profiles <- function(region1, region2, X1, X2, prof1, prof2,
+                              title = "Gene promoter", leg = c("Group1", "Group2"),
+                              label=c(-1, "TSS", 1),...){
+  
+  par(cex=1.05, mai=c(1.37,1.37,.7,.3) )
+  x <- X1[[region1]][,1]
+  y <- X1[[region1]][,3]/X1[[region1]][,2]
+  xs <- seq(from = -1, to = 1, by = 0.01)
+  plot(x, y, col = "cornflowerblue", pch = 21, ylim = c(0,1), xlim = c(-1,1), lwd = 0.8,
+       xlab = NA, ylab = NA, cex.axis = 1.1, xaxt = "n")
+  mtext(side = 1, "genomic region", line = 3, cex = 1.2)
+  mtext(side = 2, "methylation level", line = 3, cex = 1.2)
+  axis(side = 1, at = c(-1, 0, 1), labels=label)
+  title(main=title, line = 1, cex.main=1.4)
+  lines(x = xs,
+        y = eval_probit_function(prof1$basis, xs, prof1$W_opt[region1, ]),
+        col = "blue2", lwd = 2)
+  x <- X2[[region2]][,1]
+  y <- X2[[region2]][,3]/X2[[region2]][,2]
+  points(x, y, col = "coral", pch = 22, lwd = 0.8)
+  lines(x = xs,
+        y = eval_probit_function(prof2$basis, xs, prof2$W_opt[region2, ]),
+        col = "red2", lwd = 2)
+  legend("bottomright", leg , lty=1, col=c("blue2", "red2"), bty='n', cex=.90)
 }

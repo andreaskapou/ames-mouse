@@ -1,15 +1,15 @@
 # ------------------------------------------
 # Read and preprocess HTS files
 # ------------------------------------------
-HTS_data <- process_beatson(bs_files        = bs_files,
-                            rna_files       = rna_files,
-                            chr_discarded   = chr_discarded,
-                            upstream        = upstream,
-                            downstream      = downstream,
-                            cpg_density     = cpg_density,
-                            sd_thresh       = sd_thresh,
-                            min_bs_cov      = min_bs_cov,
-                            ignore_strand   = ignore_strand)
+HTS_data <- process_beatson_wrap(bs_files        = bs_files,
+                                 rna_files       = rna_files,
+                                 chr_discarded   = chr_discarded,
+                                 upstream        = upstream,
+                                 downstream      = downstream,
+                                 cpg_density     = cpg_density,
+                                 sd_thresh       = sd_thresh,
+                                 min_bs_cov      = min_bs_cov,
+                                 ignore_strand   = ignore_strand)
 
 proc_data <- preprocess_data(HTS_data         = HTS_data,
                              max_outl         = max_outl,

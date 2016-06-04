@@ -90,7 +90,8 @@ plot_cluster_prof <- function(model, basis, add_clust = FALSE, main_lab = "Clust
 }
 
 
-plot_cluster_box <- function(gene_expr, add_clust = FALSE, main_lab = "Gene expression levels"){
+plot_cluster_box <- function(gene_expr, add_clust = FALSE, 
+                             main_lab = "Gene expression levels"){
   col <- c("salmon3", "black", "blue", "red3", "darkgreen")
   if (add_clust){
     col <- c(col, "cyan", "darkgoldenrod1")

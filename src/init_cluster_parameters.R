@@ -28,10 +28,10 @@ seed            <- 1234
 K               <- 5
 w               <- NULL
 pi_k            <- NULL
-em_max_iter     <- 20
+em_max_iter     <- 30
 epsilon_conv    <- 1e-4
 opt_method      <- "CG"
-opt_itnmax      <- 30
+opt_itnmax      <- 50
 init_opt_itnmax <- 70
 is_parallel     <- TRUE
 no_cores        <- 5
