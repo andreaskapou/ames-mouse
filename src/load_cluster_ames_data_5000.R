@@ -15,10 +15,15 @@ R.utils::sourceDirectory("lib", modifiedOnly=FALSE)
 # -----------------------------------------
 # Initialize variables
 # -----------------------------------------
-do_file <- "../files/cluster_df_old_5000_ThuMay121242.RData"
-dy_file <- "../files/cluster_df_young_5000_ThuMay121237.RData"
-no_file <- "../files/cluster_N_old_5000_ThuMay121247.RData"
-ny_file <- "../files/cluster_N_young_5000_ThuMay121244.RData"
+# do_file <- "../files/cluster_df_old_5000_ThuMay121242.RData"
+# dy_file <- "../files/cluster_df_young_5000_ThuMay121237.RData"
+# no_file <- "../files/cluster_N_old_5000_ThuMay121247.RData"
+# ny_file <- "../files/cluster_N_young_5000_ThuMay121244.RData"
+
+do_file <- "../files/cluster_df_old_5000_SunJun050021.RData"
+dy_file <- "../files/cluster_df_young_5000_SunJun050005.RData"
+no_file <- "../files/cluster_N_old_5000_SunJun050021.RData"
+ny_file <- "../files/cluster_N_young_5000_SunJun050020.RData"
 
 # -----------------------------------------
 # Load saved data for DO
@@ -41,7 +46,7 @@ for (i in 1:K){
   #print(length(do_labels[[i]]))
   do_expr[[i]] <- do_proc_data$Y[do_labels[[i]]]
   do_gene_ids[[i]] <- do_proc_data$genes$ensembl_id[do_labels[[i]]]
-  #write(do_gene_ids[[i]], paste0("../results/final_do_5000_", K, "_4_clust_", i, ".txt"))
+  write(do_gene_ids[[i]], paste0("../results/final_do_5000_", K, "_4_clust_", i, ".txt"))
 }
 
 
@@ -66,7 +71,7 @@ for (i in 1:K){
   #print(length(dy_labels[[i]]))
   dy_expr[[i]] <- dy_proc_data$Y[dy_labels[[i]]]
   dy_gene_ids[[i]] <- dy_proc_data$genes$ensembl_id[dy_labels[[i]]]
-  #write(dy_gene_ids[[i]], paste0("../results/final_dy_5000_", K, "_4_clust_", i, ".txt"))
+  write(dy_gene_ids[[i]], paste0("../results/final_dy_5000_", K, "_4_clust_", i, ".txt"))
 }
 
 
@@ -90,7 +95,7 @@ for (i in 1:K){
   #print(length(no_labels[[i]]))
   no_expr[[i]] <- no_proc_data$Y[no_labels[[i]]]
   no_gene_ids[[i]] <- no_proc_data$genes$ensembl_id[no_labels[[i]]]
-  #write(no_gene_ids[[i]], paste0("../results/final_no_5000_", K, "_4_clust_", i, ".txt"))
+  write(no_gene_ids[[i]], paste0("../results/final_no_5000_", K, "_4_clust_", i, ".txt"))
 }
 
 
@@ -114,7 +119,7 @@ for (i in 1:K){
   #print(length(ny_labels[[i]]))
   ny_expr[[i]] <- ny_proc_data$Y[ny_labels[[i]]]
   ny_gene_ids[[i]] <- ny_proc_data$genes$ensembl_id[ny_labels[[i]]]
-  #write(ny_gene_ids[[i]], paste0("../results/final_ny_5000_", K, "_4_clust_", i, ".txt"))
+  write(ny_gene_ids[[i]], paste0("../results/final_ny_5000_", K, "_4_clust_", i, ".txt"))
 }
 
 
@@ -137,13 +142,13 @@ comm_no_ids <- list()
 comm_ny_ids <- list()
 for (k in 1:K){
   comm_do_ids[[k]] <- Reduce(intersect, list(inters_cell, do_gene_ids[[k]]))
-  #write(comm_do_ids[[k]], paste0("../results/final_comm_do_5000_", K, "_4_clust_", k, ".txt"))
+  write(comm_do_ids[[k]], paste0("../results/final_comm_do_5000_", K, "_4_clust_", k, ".txt"))
   comm_dy_ids[[k]] <- Reduce(intersect, list(inters_cell, dy_gene_ids[[k]]))
-  #write(comm_dy_ids[[k]], paste0("../results/final_comm_dy_5000_", K, "_4_clust_", k, ".txt"))
+  write(comm_dy_ids[[k]], paste0("../results/final_comm_dy_5000_", K, "_4_clust_", k, ".txt"))
   comm_no_ids[[k]] <- Reduce(intersect, list(inters_cell, no_gene_ids[[k]]))
-  #write(comm_no_ids[[k]], paste0("../results/final_comm_no_5000_", K, "_4_clust_", k, ".txt"))
+  write(comm_no_ids[[k]], paste0("../results/final_comm_no_5000_", K, "_4_clust_", k, ".txt"))
   comm_ny_ids[[k]] <- Reduce(intersect, list(inters_cell, ny_gene_ids[[k]]))
-  #write(comm_ny_ids[[k]], paste0("../results/final_comm_ny_5000_", K, "_4_clust_", k, ".txt"))
+  write(comm_ny_ids[[k]], paste0("../results/final_comm_ny_5000_", K, "_4_clust_", k, ".txt"))
 }
 
 
