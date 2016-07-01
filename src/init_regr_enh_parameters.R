@@ -7,8 +7,8 @@
 # -------------------------------------------------
 # Initialize parameters for processing HTS data
 # -------------------------------------------------
-upstream    <- -15000
-downstream  <- 15000
+upstream    <- -5000
+downstream  <- 5000
 cpg_density <- 15
 sd_thresh   <- 10e-02
 min_bs_cov  <- 4
@@ -18,7 +18,7 @@ ignore_strand <- TRUE
 gene_expr_thresh <- FALSE
 gene_outl_thresh <- TRUE
 gene_log2_transf <- TRUE
-max_outl <- 600
+max_outl <- 6000
 
 
 # -------------------------------------------------
